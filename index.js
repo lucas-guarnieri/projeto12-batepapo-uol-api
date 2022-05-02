@@ -1,4 +1,4 @@
-import express, { json } from 'express';
+import express, {json} from "express";
 import cors from 'cors';
 import { MongoClient } from "mongodb";
 import dotenv from 'dotenv';
@@ -32,25 +32,25 @@ server.get("/participants", async (req, res) => {
 });
 
 server.post("/participants", async (req, res) => {
-    const partipant = req.body;
+    const participant = req.body;
 
     const participantSchema = joi.object({
         name: joi.string().required(),
     });
 
-    const validation = participantSchema.validate(partipant);
+    const validation = participantSchema.validate(participant);
     if (validation.error) {
-        res.status(422).send(err(validation.error.details));
+        res.status(422).send(validation.error.details);
         return;
     }
 
     try {
-        const finder = await db.collection("participants").findOne({name : partipant.name});
+        const finder = await db.collection("participants").findOne({name : participant.name});
         if (finder === null){
-            await db.collection("participants").insertOne({...partipant, lastStatus: Date.now()});
+            await db.collection(`db`).insertOne({...participant, lastStatus: Date.now()});
             res.sendStatus(201);
         }else {
-            res.sendStatus(409).send(err("user already exist"));
+            res.sendStatus(409);
         }
     } catch (error){
         console.error(error);
