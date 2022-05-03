@@ -83,27 +83,27 @@ server.post("/status", async (req, res) => {
 })
 
 // CLEAR INACTIVE PARTICIPANTS
-// setInterval(async () => {
-//     try {
-//         const actualTime = Date.now();
-//         const participants = await db.collection("participants").find().toArray();
+ setInterval(async () => {
+     try {
+         const actualTime = Date.now();
+         const participants = await db.collection("participants").find().toArray();
+         const inactiveUsers = participants.filter(user => parseInt(actualTime) >= parseInt(user.lastStatus) + 10000)
 
-//         participants.map(participant => {
-//             if (parseInt(actualTime) >= parseInt(participant.lastStatus) + 10000){
-//                     db.collection("participants").deleteOne({ name: participant.name });
-//                     db.collection("messages").insertOne({
-//                     from: participant.name, 
-//                     to: 'Todos', 
-//                     text: 'sai da sala...', 
-//                     type: 'status', 
-//                     time: dayjs(Date.now()).format("HH:mm:ss")
-//                 });
-//             }
-//         });
-//         } catch (error){
-//             console.error(error);
-//         }
-// }, 15000); 
+         inactiveUsers.map(participant => {
+                db.collection("participants").deleteOne({ name: participant.name });
+                db.collection("messages").insertOne({
+                from: participant.name, 
+                to: 'Todos', 
+                text: 'sai da sala...', 
+                type: 'status', 
+                time: dayjs(Date.now()).format("HH:mm:ss")
+            });
+             
+         });
+         } catch (error){
+             console.error(error);
+         }
+ }, 15000); 
 
 // GET MESSAGE LIST
 server.get("/messages", async (req, res) => {
