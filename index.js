@@ -93,17 +93,14 @@ server.get("/messages", async (req, res) => {
 
     try {
         const messages = await db.collection("messages").find().toArray();
-        if (!messages.some(element => {element.to === user }) && !messages.some(element => {element.from === user })){
-            res.sendStatus(404);
-        }else {
+        
             const filteredMessages = messages.filter(userFilter);
             if (!messageNumber){
-                return filteredMessages;
+                res.send(filteredMessages);
             }else {
-                return filteredMessages.slice(filteredMessages.length - messageNumber, filteredMessages.length);
-            }
+                res.send(filteredMessages.slice(filteredMessages.length - messageNumber, filteredMessages.length));
+            
         }
-        res.send(messages);
     } catch (error){
         console.error(error);
         res.sendStatus(500);
@@ -131,7 +128,7 @@ server.post("/messages", async (req, res) => {
         if (findUser === null){
             res.sendStatus(404);
         } else {
-            await db.collection("messages").insertOne({...message, time: dayjs(Date.now()).format("HH:mm:ss")});
+            await db.collection("messages").insertOne({...message, from: user, time: dayjs(Date.now()).format("HH:mm:ss")});
             res.sendStatus(201);
         }
     } catch (error){
