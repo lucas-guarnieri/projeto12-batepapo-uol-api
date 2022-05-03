@@ -31,7 +31,6 @@ server.get("/participants", async (req, res) => {
     }
 });
 
-
 // REGISTER NEW USER
 server.post("/participants", async (req, res) => {
     const participant = req.body;
@@ -58,7 +57,6 @@ server.post("/participants", async (req, res) => {
         res.sendStatus(500);
     }
 });
-
 
 // USER STATUS UPDATE
 server.post("/status", async (req, res) => {
