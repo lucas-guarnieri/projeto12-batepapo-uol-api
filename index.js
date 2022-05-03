@@ -64,7 +64,7 @@ server.post("/status", async (req, res) => {
     const user = req.headers.user;
 
     try {
-        const findUser = await db.collection("participants").findOne({name : user});
+        const findUser = await db.collection("participants").findOne({name: user});
         if (findUser === null){
             res.sendStatus(404);
         }else {
@@ -82,13 +82,36 @@ server.post("/status", async (req, res) => {
     }
 })
 
+// // CLEAR INACTIVE PARTICIPANTS
+// setInterval(async () => {
+//     try {
+//         const actualTime = Date.now();
+//         const participants = await db.collection("participants").find().toArray();
+
+//         participants.map(participant => {
+//             if (parseInt(actualTime) >= parseInt(participant.lastStatus) + 10000){
+//                     db.collection("participants").deleteOne({ name: participant.name });
+//                     db.collection("messages").insertOne({
+//                     from: participant.name, 
+//                     to: 'Todos', 
+//                     text: 'sai da sala...', 
+//                     type: 'status', 
+//                     time: dayjs(Date.now()).format("HH:mm:ss")
+//                 });
+//             }
+//         });
+//         } catch (error){
+//             console.error(error);
+//         }
+// }, 15000); 
+
 // GET MESSAGE LIST
 server.get("/messages", async (req, res) => {
     const messageNumber = parseInt(req.query.limit);
     const user = req.headers.user;
 
     function userFilter(elem){
-        return elem.type === "message" || elem.to === user || elem.from === user;
+        return elem.type === "message" || elem.type === "status" || elem.to === user || elem.from === user;
     }
 
     try {
