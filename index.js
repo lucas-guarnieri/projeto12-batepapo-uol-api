@@ -1,6 +1,6 @@
 import express, {json} from "express";
 import cors from 'cors';
-import { MongoClient } from "mongodb";
+import { MongoClient, ObjectId } from "mongodb";
 import dotenv from 'dotenv';
 import joi from 'joi'
 import dayjs from "dayjs";
@@ -82,7 +82,7 @@ server.post("/status", async (req, res) => {
     }
 })
 
-// // CLEAR INACTIVE PARTICIPANTS
+// CLEAR INACTIVE PARTICIPANTS
 // setInterval(async () => {
 //     try {
 //         const actualTime = Date.now();
@@ -160,7 +160,30 @@ server.post("/messages", async (req, res) => {
     }
 })
 
+//DELETE MESSAGE
+server.delete("/messages/:ID_DA_MENSAGEM", async (req, res) => {
+    const user = req.headers.user;
+    const mensageID = req.params.ID_DA_MENSAGEM;
+    try {
+        const messageExists = await db.collection("messages").findOne({_id: new ObjectId(mensageID)});
+        if (messageExists === null) {
+            res.sendStatus(404);
+            return;
+        }
+        if (messageExists.from !== user){
+            res.sendStatus(409)
+            return;
+        }
+        await db.collection("messages").deleteOne({_id: new ObjectId(mensageID)});
+        res.sendStatus(200);
+    } catch (error){
+        console.log(error);
+        res.sendStatus(500)
+    }
+});
 
 server.listen(5000, () => {
     console.log(allGood(`Running on http://localhost:${process.env.PORTA}`));
 });
+
+
