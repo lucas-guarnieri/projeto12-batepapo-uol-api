@@ -207,11 +207,12 @@ server.put("/messages/:ID_DA_MENSAGEM", async (req, res) => {
         }
         if (messageExists.from !== user){
             res.sendStatus(401)
+            console.log(user, messageExists.from)
             return;
         }
         await db.collection("messages").updateOne(
                 { _id: new ObjectId(mensageID)},
-                { $set: {to: message.to, text: message.to, type: message.type}}
+                { $set: {to: message.to, text: message.text, type: message.type}}
             );
         res.sendStatus(200);
     } catch {
