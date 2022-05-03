@@ -171,7 +171,7 @@ server.delete("/messages/:ID_DA_MENSAGEM", async (req, res) => {
             return;
         }
         if (messageExists.from !== user){
-            res.sendStatus(409)
+            res.sendStatus(401)
             return;
         }
         await db.collection("messages").deleteOne({_id: new ObjectId(mensageID)});
@@ -179,6 +179,43 @@ server.delete("/messages/:ID_DA_MENSAGEM", async (req, res) => {
     } catch (error){
         console.log(error);
         res.sendStatus(500)
+    }
+});
+
+//MODIFY MESSAGE
+server.put("/messages/:ID_DA_MENSAGEM", async (req, res) => {
+    const user = req.headers.user;
+    const mensageID = req.params.ID_DA_MENSAGEM;
+    const message = req.body;
+
+    const messageSchema = joi.object({
+        to: joi.string().required(),
+        text: joi.string().required(),
+        type: joi.string().required().valid("message", "private_message")
+    });
+    const validation = messageSchema.validate(message);
+    if (validation.error) {
+        res.status(422).send(validation.error.details);
+        return;
+    }
+
+    try {
+        const messageExists = await db.collection("messages").findOne({_id: new ObjectId(mensageID)});
+        if (messageExists === null) {
+            res.sendStatus(404);
+            return;
+        }
+        if (messageExists.from !== user){
+            res.sendStatus(401)
+            return;
+        }
+        await db.collection("messages").updateOne(
+                { _id: new ObjectId(mensageID)},
+                { $set: {to: message.to, text: message.to, type: message.type}}
+            );
+        res.sendStatus(200);
+    } catch {
+
     }
 });
 
